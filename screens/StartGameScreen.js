@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import {
   StyleSheet,
-  Text,
   View,
   Button,
   TouchableWithoutFeedback,
@@ -10,6 +9,9 @@ import {
 } from 'react-native'
 import Card from '../components/Card'
 import Input from '../components/Input'
+import MainButton from '../components/MainButton'
+import BodyText from '../components/BodyText'
+import TitleText from '../components/TitleText'
 import NumberContainer from '../components/NumberContainer'
 import colors from '../constants/colors'
 
@@ -48,12 +50,11 @@ const StartGameScreen = props => {
   if (confirmed) {
     confirmedOutput = (
       <Card style={styles.summaryContainer}>
-        <Text>You selected:</Text>
+        <BodyText>You selected:</BodyText>
         <NumberContainer>{selectedNumber}</NumberContainer>
-        <Button
-          title="START GAME"
-          onPress={() => props.onStartGame(selectedNumber)}
-        />
+        <MainButton onPress={() => props.onStartGame(selectedNumber)}>
+          START GAME
+        </MainButton>
       </Card>
     )
   }
@@ -65,9 +66,9 @@ const StartGameScreen = props => {
       }}
     >
       <View style={styles.screen}>
-        <Text style={styles.title}>Start a new game</Text>
+        <TitleText style={styles.title}>Start a new game</TitleText>
         <Card style={styles.inputContainer}>
-          <Text>Select a number</Text>
+          <BodyText>Select a number</BodyText>
           <Input
             style={styles.input}
             blurOnSubmit

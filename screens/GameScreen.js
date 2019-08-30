@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { StyleSheet, View, Text, Button, Alert } from 'react-native'
+import { StyleSheet, View, Alert, ScrollView, FlatList } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import NumberContainer from '../components/NumberContainer'
 import Card from '../components/Card'
+import MainButton from '../components/MainButton'
+import BodyText from '../components/BodyText'
 
 const generateRandomBetween = (min, max, exclude) => {
   min = Math.ceil(min)
@@ -14,11 +17,27 @@ const generateRandomBetween = (min, max, exclude) => {
   }
 }
 
-const GameScreen = props => {
-  const [currentGuess, setCurrentGuess] = useState(
-    generateRandomBetween(1, 100, props.userChoice)
+const renderListItem = (listLength, itemData) => {
+  return (
+    <View style={styles.listItem}>
+      <BodyText>#{listLength - itemData.index}</BodyText>
+      <BodyText>{itemData.item}</BodyText>
+    </View>
   )
-  const [rounds, setRounds] = useState(0)
+}
+// const renderListItem = (value, index) => {
+//   return (
+//     <View key={value} style={styles.listItem}>
+//       <BodyText>#{index}</BodyText>
+//       <BodyText>{value}</BodyText>
+//     </View>
+//   )
+// }
+
+const GameScreen = props => {
+  const initialGuess = generateRandomBetween(1, 100, props.userChoice)
+  const [currentGuess, setCurrentGuess] = useState(initialGuess)
+  const [pastGuesses, setpastGuesses] = useState([initialGuess.toString()])
   const currentLow = useRef(1)
   const currentHigh = useRef(100)
 
@@ -26,7 +45,7 @@ const GameScreen = props => {
 
   useEffect(() => {
     if (currentGuess === userChoice) {
-      onGameOver(rounds)
+      onGameOver(pastGuesses.length)
     }
   }, [currentGuess, userChoice, onGameOver])
 
@@ -43,7 +62,7 @@ const GameScreen = props => {
     if (direction === 'lower') {
       currentHigh.current = currentGuess
     } else {
-      currentLow.current = currentGuess
+      currentLow.current = currentGuess + 1
     }
     const nextNumber = generateRandomBetween(
       currentLow.current,
@@ -51,17 +70,34 @@ const GameScreen = props => {
       currentGuess
     )
     setCurrentGuess(nextNumber)
-    setRounds(curRounds => curRounds + 1)
+    setpastGuesses(curRounds => [nextNumber.toString(), ...curRounds])
   }
 
   return (
     <View style={styles.screen}>
-      <Text>Opponent's Guess</Text>
+      <BodyText>Opponent's Guess</BodyText>
       <NumberContainer>{currentGuess}</NumberContainer>
       <Card style={styles.buttonContainer}>
-        <Button title="LOWER" onPress={() => nextGuessHandler('lower')} />
-        <Button title="GREATER" onPress={() => nextGuessHandler('greater')} />
+        <MainButton onPress={() => nextGuessHandler('lower')}>
+          <Ionicons name="md-remove" size={24} color="white" />
+        </MainButton>
+        <MainButton onPress={() => nextGuessHandler('greater')}>
+          <Ionicons name="md-add" size={24} color="white" />
+        </MainButton>
       </Card>
+      <View style={styles.listContainer}>
+        {/* <ScrollView contentContainerStyle={styles.list}> */}
+        {/*   {pastGuesses.map((guess, index) => */}
+        {/*     renderListItem(guess, pastGuesses.length - index) */}
+        {/*   )} */}
+        {/* </ScrollView> */}
+        <FlatList
+          keyExtractor={item => item}
+          data={pastGuesses}
+          renderItem={renderListItem.bind(this, pastGuesses.length)}
+          contentContainerStyle={styles.list}
+        />
+      </View>
     </View>
   )
 }
@@ -78,6 +114,26 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: 300,
     maxWidth: '80%'
+  },
+  listContainer: {
+    width: '60%',
+    // width: '80%',
+    flex: 1
+  },
+  list: {
+    flexGrow: 1,
+    // alignItems: 'center',
+    justifyContent: 'flex-end'
+  },
+  listItem: {
+    flexDirection: 'row',
+    padding: 10,
+    marginTop: 10,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    justifyContent: 'space-between',
+    width: '100%'
+    // width: '60%'
   }
 })
 
